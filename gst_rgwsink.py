@@ -12,41 +12,39 @@ import threading
 import logging
 from boto3.s3.transfer import TransferConfig
 gi.require_version('Gst', '1.0')
+gi.require_version('GstBase', '1.0')
 from gi.repository import Gst, GObject, GstBase
+
+
 # Initializes Gstreamer, it's variables, paths
+GObject.threads_init()
+Gst.init(None)
 
-# DEFAULT_ENDPOINT = "xxx"
-# DEFAULT_ACCESS = "xxx"
-# DEFAULT_SECRET = "xxx"
-
-#DEFAULT_ENDPOINT = "http://ceph-route-rook-ceph.apps.jweng-ocp.shiftstack.com"
-#DEFAULT_ACCESS = "QjdOMFdZNEE3NTc3MUwwMDNZT1M="
-#DEFAULT_SECRET = "cmlBWFZLa2tIaWhSaTN5Sk5FNGpxaGRlc2ZGWWtwMWZqWFpqR0FrRA=="
-#DEFAULT_BUCKET = "my-bucket"
-#DEFAULT_LOCATION = ""
-#DEFAULT_PARTS = 6
-
-FORMATS = "{RGBx,BGRx,xRGB,xBGR,RGBA,BGRA,ARGB,ABGR,RGB,BGR}"
-
-
-DEFAULT_BUCKET = "myBucket"
-DEFAULT_ENDPOINT = "http://ceph-route-rook-ceph.apps.neeha-ocp.shiftstack.com"
-DEFAULT_ACCESS = "SFQ4MzE0SkxKNFRFOUNMTDZPV04="
-DEFAULT_SECRET = "MFV4VUFkb3p3RW5jWXVNZjk2S2lKOXdWTGJMaEdkUVNMQngzb2hMUA=="
+#default variables 
+DEFAULT_ENDPOINT = "http://ceph-route-rook-ceph.apps.jweng-ocp.shiftstack.com"
+DEFAULT_ACCESS = "QjdOMFdZNEE3NTc3MUwwMDNZT1M="
+DEFAULT_SECRET = "cmlBWFZLa2tIaWhSaTN5Sk5FNGpxaGRlc2ZGWWtwMWZqWFpqR0FrRA=="
+DEFAULT_BUCKET = "my-bucket"
 DEFAULT_LOCATION = ""
 DEFAULT_PARTS = 6
 
+# DEFAULT_BUCKET = "myBucket"
+# DEFAULT_ENDPOINT = "http://ceph-route-rook-ceph.apps.neeha-ocp.shiftstack.com"
+# DEFAULT_ACCESS = "SFQ4MzE0SkxKNFRFOUNMTDZPV04="
+# DEFAULT_SECRET = "MFV4VUFkb3p3RW5jWXVNZjk2S2lKOXdWTGJMaEdkUVNMQngzb2hMUA=="
+# DEFAULT_LOCATION = ""
+# DEFAULT_PARTS = 6
+
+FORMATS = "{RGBx,BGRx,xRGB,xBGR,RGBA,BGRA,ARGB,ABGR,RGB,BGR}"
+
 s3 = None
 s3r = None
-mpu = None              # Multipart upload handle
+mpu = None   # Multipart upload handle
 
 #
 # Thread (safe) function responsible of uploading a part of the file
 #
 
-#
-# Thread (safe) function responsible of uploading a part of the file
-#
 def upload_part_r(partid, part_start, part_end, thr_args):
     filename = thr_args['FileName']
     bucket = thr_args['BucketName']
@@ -60,19 +58,8 @@ def upload_part_r(partid, part_start, part_end, thr_args):
     logging.info("%d: DEBUG: Seeking offset: %d", partid, part_start)
     logging.info("%d: DEBUG: Reading size: %d", partid, part_end - part_start)
     f.seek(part_start, 0)
-    # XXX: Would the next read fail if the portion is too large?
+    
     data = f.read(part_end - part_start + 1)
-
-    # DO WORK HERE
-    # TODO:
-    # - Variables like mpu, Bucket, Key should be passed from caller -- DONE
-    # - We should collect part['ETag'] from this part into array/list, so we must synchronize access
-    #   to that list, this list is then used to construct part_info array to call .complete_multipart_upload(...)
-    # TODO.
-    #
-    # NOTES:
-    # - Since part id is zero based (from handle_mp_file function), we add 1 to it here as HTTP parts should start
-    #   from 1
     part = s3.upload_part(Bucket=bucket, Key=filename, PartNumber=partid+1, UploadId=upload_id, Body=data)
 
     # Thread critical variable which should hold all information about ETag for all parts, access to this variable
@@ -148,35 +135,26 @@ def handle_mp_file(bucket, filename, nrparts):
     s3.complete_multipart_upload(Bucket=bucket, Key=filename, UploadId=mpu['UploadId'], MultipartUpload=thr_args['PartInfo'])
     return True 
            
-      
-      
-      
-      
-      
-
-#
-# Sink element created entirely in python
-# Takes file and uploads to ceph rgw 
-#
+#sink element 
 class CephRGW(GstBase.BaseSink):
 
-    GST_PLUGIN_NAME = 'ceph_rgw_sink'
-
+    #plugin name
+    GST_PLUGIN_NAME = 'cephrgwsink'
+    __gtype_name__ = 'cephrgwsink'
+    
     #plugin description
-    __gstmetadata__ = ('Ceph-RGW-Sink','Sink',
-                      'Custom ceph-rgw-sink element', 'Jason Weng')
+    __gstmetadata__ = ('cephrgwsinkSink', #name
+                      'Sink element', #transform
+                      'A sink element to store data to ceph rgw storage', #description
+                      'Jason Weng, Neeha Kompala') #authors 
    
-
+    #to make pad templates visible for plugin, define gsttemplates field
     __gsttemplates__  = Gst.PadTemplate.new("sink",
                         Gst.PadDirection.SINK,
                         Gst.PadPresence.ALWAYS,
                         Gst.Caps.from_string(f"video/x-raw,format={FORMATS}"))
     
-  
-
-    #to make pad templates visible for plugin, define gsttemplates field
- 
-
+    #object properties 
     __gproperties__ = {
         "endpoint_url": (GObject.TYPE_STRING,
                      "Endpoint url",
@@ -216,17 +194,17 @@ class CephRGW(GstBase.BaseSink):
         "parts": (GObject.TYPE_INT64,
                      "Parts",
                      "How many threads to use",
+                     0, #min
+                     100, #max 
                      DEFAULT_PARTS,  # default
                      GObject.ParamFlags.READWRITE
-                     ),
+                     )
 
     }
 
-    
 
-    def __init__(self):
-
-        super(CephRGW, self).__init__()
+    def __init__(self, *args):
+        GstBase.BaseSink.__init__(self, *args)
 
         #self.endpoint = DEFAULT_ENDPOINT
         #self.access = DEFAULT_ACCESS 
@@ -284,7 +262,7 @@ class CephRGW(GstBase.BaseSink):
             # Get a list of all bucket names from the response
             buckets = [bucket['Name'] for bucket in response['Buckets']]
 
-            # Print     out the bucket list
+            # Print out the bucket list
             print("Initial bucket List: %s" % buckets)
 
             #s3r.Bucket("MyBucket").objects.all().delete()
@@ -314,5 +292,7 @@ class CephRGW(GstBase.BaseSink):
             logging.error(e)
         return Gst.FlowReturn.OK
 
+
+# Required for registering plugin dynamically
 GObject.type_register(CephRGW)
-__gstelementfactory__ = ("ceph-rgw-sink", CephRGW.GST_PLUGIN_NAME, Gst.Rank.NONE, CephRGW)
+__gstelementfactory__ = (CephRGW.GST_PLUGIN_NAME, Gst.Rank.NONE, CephRGW)

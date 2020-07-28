@@ -5,7 +5,7 @@ Set up
 ```
 git clone https://github.com/Streaming-multiple-video-sources-Edge/GST-plugin.git
 
-cd gst-python-plugins
+cd GST-plugins
 
 python3 -m venv venv
 source venv/bin/activate

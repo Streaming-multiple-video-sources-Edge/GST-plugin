@@ -237,12 +237,12 @@ class CephRGW(GstBase.BaseSink):
         try:
             # Initialize the connection with Ceph RADOS GW
             s3 = boto3.client(service_name = 's3', use_ssl = False, verify = False,
-                            endpoint_url = self.endpoint,
-                            aws_access_key_id = base64.decodebytes(bytes(self.access,'utf-8')).decode('utf-8'),
-                            aws_secret_access_key = base64.decodebytes(bytes(self.secret,'utf-8')).decode('utf-8'),)
-            s3r = boto3.resource(service_name = 's3', use_ssl = False, verify = False, endpoint_url = self.endpoint,
-                            aws_access_key_id = base64.decodebytes(bytes(self.access,'utf-8')).decode('utf-8'),
-                            aws_secret_access_key = base64.decodebytes(bytes(self.secret,'utf-8')).decode('utf-8'),)
+                            endpoint_url = self.endpoint_url,
+                            aws_access_key_id = base64.decodebytes(bytes(self.access_key,'utf-8')).decode('utf-8'),
+                            aws_secret_access_key = base64.decodebytes(bytes(self.secret_key,'utf-8')).decode('utf-8'),)
+            s3r = boto3.resource(service_name = 's3', use_ssl = False, verify = False, endpoint_url = self.endpoint_url,
+                            aws_access_key_id = base64.decodebytes(bytes(self.access_key,'utf-8')).decode('utf-8'),
+                            aws_secret_access_key = base64.decodebytes(bytes(self.secret_key,'utf-8')).decode('utf-8'),)
 
             response = s3.list_buckets()
             # Get a list of all bucket names from the response

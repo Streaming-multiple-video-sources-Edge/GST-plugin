@@ -17,7 +17,11 @@ def run_youtube(input_url):
     location = subprocess.check_output(youtube_dl_str, shell=True).decode()
     print("LOCATION:" + location)
     #pipeline_str = "souphttpsrc is-live=true location=\"{0}\" ! filesink location=video_files/video1.mp4 -e".format(location)
-    pipeline_str = "souphttpsrc is-live=true location=\"{0}\" ! cephrgwsink location=\"{0}\" parts=6".format(location)
+    pipeline_str = "souphttpsrc is-live=true location=\"{0}\" ! cephrgwsink endpointurl=http://ceph-route-rook-ceph.apps.jweng-ocp.shiftstack.com"
+    "accesskey=QjdOMFdZNEE3NTc3MUwwMDNZT1M= secretkey=cmlBWFZLa2tIaWhSaTN5Sk5FNGpxaGRlc2ZGWWtwMWZqWFpqR0FrRA=="
+    "bucket=my-bucket parts=6".format(location)
+    
+    print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
     print(pipeline_str)
     return pipeline_str
 

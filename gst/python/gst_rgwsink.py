@@ -24,14 +24,12 @@ DEFAULT_ENDPOINT = "http://ceph-route-rook-ceph.apps.jweng-ocp.shiftstack.com"
 DEFAULT_ACCESS = "QjdOMFdZNEE3NTc3MUwwMDNZT1M="
 DEFAULT_SECRET = "cmlBWFZLa2tIaWhSaTN5Sk5FNGpxaGRlc2ZGWWtwMWZqWFpqR0FrRA=="
 DEFAULT_BUCKET = "my-bucket"
-DEFAULT_LOCATION = ""
 DEFAULT_PARTS = 6
 
 # DEFAULT_BUCKET = "myBucket"
 # DEFAULT_ENDPOINT = "http://ceph-route-rook-ceph.apps.neeha-ocp.shiftstack.com"
 # DEFAULT_ACCESS = "SFQ4MzE0SkxKNFRFOUNMTDZPV04="
 # DEFAULT_SECRET = "MFV4VUFkb3p3RW5jWXVNZjk2S2lKOXdWTGJMaEdkUVNMQngzb2hMUA=="
-# DEFAULT_LOCATION = ""
 # DEFAULT_PARTS = 6
 
 FORMATS = "{RGBx,BGRx,xRGB,xBGR,RGBA,BGRA,ARGB,ABGR,RGB,BGR}"
@@ -155,24 +153,24 @@ class CephRGW(GstBase.BaseSink):
     
     #object properties 
     __gproperties__ = {
-        "endpoint_url": (GObject.TYPE_STRING,
+        "endpointurl": (GObject.TYPE_STRING,
                      "Endpoint url",
                      "A property that contains str",
-                     "",  # default
+                     DEFAULT_ENDPOINT,  # default
                      GObject.ParamFlags.READWRITE
                      ),
        
-        "access_key": (GObject.TYPE_STRING,
+        "accesskey": (GObject.TYPE_STRING,
                      "Access key",
                      "Access key for ceph rgw",
-                     "",  # default
+                     DEFAULT_ACCESS,  # default
                      GObject.ParamFlags.READWRITE
                      ),
         
-        "secret_key": (GObject.TYPE_STRING,
+        "secretkey": (GObject.TYPE_STRING,
                      "Secret Key",
                      "Secret key for ceph rgw",
-                     "",  # default
+                     DEFAULT_SECRET,  # default
                      GObject.ParamFlags.READWRITE
                      ),
         
@@ -180,13 +178,6 @@ class CephRGW(GstBase.BaseSink):
                      "Bucket",
                      "Bucket for ceph rgw",
                      DEFAULT_BUCKET,  # default
-                     GObject.ParamFlags.READWRITE
-                     ),
-
-        "location": (GObject.TYPE_STRING,
-                     "Location",
-                     "Location of file to upload to ceph rgw",
-                     DEFAULT_LOCATION,  # default
                      GObject.ParamFlags.READWRITE
                      ),
 
@@ -205,40 +196,35 @@ class CephRGW(GstBase.BaseSink):
     def __init__(self, *args):
         GstBase.BaseSink.__init__(self, *args)
 
-        #self.endpoint = DEFAULT_ENDPOINT
-        #self.access = DEFAULT_ACCESS 
-        #self.secret = DEFAULT_SECRET 
-        self.location = DEFAULT_LOCATION
+        self.endpoint_url = DEFAULT_ENDPOINT
+        self.access_key = DEFAULT_ACCESS 
+        self.secret_key = DEFAULT_SECRET 
         self.bucket = DEFAULT_BUCKET
         self.parts = DEFAULT_PARTS
 
     def do_get_property(self, prop: GObject.GParamSpec):
-        if prop.name == 'endpoint_url':
-            return self.endpoint
-        elif prop.name == 'access_key':
-            return self.access
-        elif prop.name == 'secret_key':
-            return self.secret
+        if prop.name == 'endpointurl':
+            return self.endpoint_url
+        elif prop.name == 'accesskey':
+            return self.access_key
+        elif prop.name == 'secretkey':
+            return self.secret_key
         elif prop.name == 'bucket':
             return self.bucket
-        elif prop.name == 'location':
-            return self.location
         elif prop.name == 'parts':
             return self.parts
         else:
             raise AttributeError('unknown property %s' % prop.name)
 
     def do_set_property(self, prop: GObject.GParamSpec, value):
-        if prop.name == 'endpoint_url':
-            self.endpoint = value
-        elif prop.name == 'access_key':
-            self.access = value
-        elif prop.name == 'secret_key':
-            self.secret = value
+        if prop.name == 'endpointurl':
+            self.endpoint_url = value
+        elif prop.name == 'accesskey':
+            self.access_key = value
+        elif prop.name == 'secretkey':
+            self.secret_key = value
         elif prop.name == 'bucket':
             self.bucket = value 
-        elif prop.name == 'location':
-            self.location = value
         elif prop.name == 'parts':
             self.parts = value
         else:
@@ -247,8 +233,9 @@ class CephRGW(GstBase.BaseSink):
 
     def do_render(self, buffer):
         Gst.info("timestamp(buffer):%s" % (Gst.TIME_ARGS(buffer.pts)))
-        		# Initialize the connection with Ceph RADOS GW
+        		
         try:
+            # Initialize the connection with Ceph RADOS GW
             s3 = boto3.client(service_name = 's3', use_ssl = False, verify = False,
                             endpoint_url = self.endpoint,
                             aws_access_key_id = base64.decodebytes(bytes(self.access,'utf-8')).decode('utf-8'),
@@ -284,7 +271,7 @@ class CephRGW(GstBase.BaseSink):
             print("Updated bucket List: %s" % buckets)
 
 
-            handle_mp_file(self.bucket, self.location, self.parts)
+            handle_mp_file(self.bucket, buffer, self.parts)
             
           
         except Exception as e:

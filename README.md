@@ -3,7 +3,7 @@
 Set up
 
 ```
-podman run -ti --privileged -v `pwd`:/work docker.io/jweng1/gst-python:v1
+podman run -ti --privileged --net=host -v `pwd`:/work docker.io/jweng1/gst-python:v1
 
 git clone https://github.com/Streaming-multiple-video-sources-Edge/GST-plugin.git
 

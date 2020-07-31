@@ -7,6 +7,7 @@ podman run -ti --privileged --net=host -v `pwd`:/work docker.io/jweng1/gst-pytho
 
 git clone https://github.com/Streaming-multiple-video-sources-Edge/GST-plugin.git
 
+cd work
 cd GST-plugin
 
 python3 -m venv venv

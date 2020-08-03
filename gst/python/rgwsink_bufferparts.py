@@ -130,7 +130,7 @@ class CephRGW(GstBase.BaseSink):
       
       
       
-      def __init__(self, *args):
+    def __init__(self, *args):
         GstBase.BaseSink.__init__(self, *args)
 
         self.endpoint_url = DEFAULT_ENDPOINT
@@ -166,7 +166,7 @@ class CephRGW(GstBase.BaseSink):
         else:
             raise AttributeError('unknown property %s' % prop.name)
             
-      def do_set_property(self, prop: GObject.GParamSpec, value):
+    def do_set_property(self, prop: GObject.GParamSpec, value):
         if prop.name == 'endpointurl':
             self.endpoint_url = value
         elif prop.name == 'accesskey':
@@ -215,7 +215,7 @@ class CephRGW(GstBase.BaseSink):
 
         return True
     
-        def do_render(self, buffer):
+    def do_render(self, buffer):
         #Gst.info("timestamp(buffer):%s" % (Gst.TIME_ARGS(buffer.pts)))
 
         try:
@@ -269,4 +269,3 @@ class CephRGW(GstBase.BaseSink):
 # Required for registering plugin dynamically
 GObject.type_register(CephRGW)
 __gstelementfactory__ = (CephRGW.GST_PLUGIN_NAME, Gst.Rank.NONE, CephRGW)
-

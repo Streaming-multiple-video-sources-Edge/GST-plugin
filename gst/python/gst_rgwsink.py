@@ -1,5 +1,5 @@
 #export GST_PLUGIN_PATH=$GST_PLUGIN_PATH:$PWD
-
+'''
 import gi 
 import sys
 import os 
@@ -282,3 +282,4 @@ class CephRGW(GstBase.BaseSink):
 # Required for registering plugin dynamically
 GObject.type_register(CephRGW)
 __gstelementfactory__ = (CephRGW.GST_PLUGIN_NAME, Gst.Rank.NONE, CephRGW)
+'''

@@ -9,19 +9,17 @@ gi.require_version('Gst', '1.0')
 from gi.repository import Gst, GObject  # noqa:F401,F402
 
 
-
 def run_youtube(input_url):
-
     youtube_dl_str = "youtube-dl --format " +  "\"best[ext=mp4][protocol=https]\"" + " --get-url " + input_url
     print("YDS: " + youtube_dl_str)
     location = subprocess.check_output(youtube_dl_str, shell=True).decode()
     print("LOCATION:" + location)
     #pipeline_str = "souphttpsrc is-live=true location=\"{0}\" ! filesink location=video_files/video1.mp4 -e".format(location)
-    pipeline_str = "souphttpsrc is-live=true location=\"{0}\" ! cephrgwsink endpointurl=http://ceph-route-rook-ceph.apps.jweng-ocp.shiftstack.com"
-    "accesskey=QjdOMFdZNEE3NTc3MUwwMDNZT1M= secretkey=cmlBWFZLa2tIaWhSaTN5Sk5FNGpxaGRlc2ZGWWtwMWZqWFpqR0FrRA=="
-    "bucket=my-bucket parts=6".format(location)
-    
-    print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+    #pipeline_str = "souphttpsrc is-live=true location=\"{0}\" ! cephrgwsink endpoint_url=http://ceph-route-rook-ceph.apps.jweng-ocp.shiftstack.com access_key=QjdOMFdZNEE3NTc3MUwwMDNZT1M= secret_key=cmlBWFZLa2tIaWhSaTN5Sk5FNGpxaGRlc2ZGWWtwMWZqWFpqR0FrRA== bucket=my-bucket location=\"{0}\" parts=6".format(location)
+    a = "http://ceph-route-rook-ceph.apps.jweng-ocp.shiftstack.com"
+    b ="VUJHR0ROUkhDUUxYREYwNzQxTzg="
+    c ="T2tOdVppaGZhTmdOY1BnaXJscjVHVHo5eFhYSGxVa1pIREdVdmhNTg=="
+    pipeline_str = "souphttpsrc is-live=true location=\"{0}\" ! cephrgwsink endpointurl={1} accesskey={2} secretkey={3} bucket=jwengbucket".format(location,a,b,c)
     print(pipeline_str)
     return pipeline_str
 

@@ -116,6 +116,16 @@ class CephRGW(GstBase.BaseSink):
                      DEFAULT_PART_SIZE,  # default
                      GObject.ParamFlags.READWRITE
                      ),
+        
+        
+        
+        "key": (GObject.TYPE_STRING,
+                     "key",
+                     "key for ceph rgw",
+                     DEFAULT_KEY,  # default
+                     GObject.ParamFlags.READWRITE
+                     ),
+        
       }
       
       
@@ -155,6 +165,23 @@ class CephRGW(GstBase.BaseSink):
             return self.key
         else:
             raise AttributeError('unknown property %s' % prop.name)
+            
+      def do_set_property(self, prop: GObject.GParamSpec, value):
+        if prop.name == 'endpointurl':
+            self.endpoint_url = value
+        elif prop.name == 'accesskey':
+            self.access_key = value
+        elif prop.name == 'secretkey':
+            self.secret_key = value
+        elif prop.name == 'bucket':
+            self.bucket = value 
+        elif prop.name == 'partsize':
+            self.part_size = value
+        elif prop.name == 'key':
+            self.key = value
+        else:
+            raise AttributeError('unknown property %s' % prop.name)
+
 
     def do_start (self):
         # Initialize the connection with Ceph RADOS GW

@@ -20,8 +20,8 @@ Gst.init(None)
 
 #default variables
 DEFAULT_ENDPOINT = "http://ceph-route-rook-ceph.apps.jweng-ocp.shiftstack.com"
-DEFAULT_ACCESS = "QjdOMFdZNEE3NTc3MUwwMDNZT1M="
-DEFAULT_SECRET = "cmlBWFZLa2tIaWhSaTN5Sk5FNGpxaGRlc2ZGWWtwMWZqWFpqR0FrRA=="
+DEFAULT_ACCESS = "VUJHR0ROUkhDUUxYREYwNzQxTzg="
+DEFAULT_SECRET = "T2tOdVppaGZhTmdOY1BnaXJscjVHVHo5eFhYSGxVa1pIREdVdmhNTg=="
 DEFAULT_BUCKET = "my-bucket"
 DEFAULT_COUNT = 0
 DEFAULT_KEY = 'mykey'
@@ -116,8 +116,7 @@ class CephRGW(GstBase.BaseSink):
                      DEFAULT_PART_SIZE,  # default
                      GObject.ParamFlags.READWRITE
                      ),
-        
-        
+       
         
         "key": (GObject.TYPE_STRING,
                      "key",

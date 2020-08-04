@@ -9,28 +9,45 @@ gi.require_version('Gst', '1.0')
 from gi.repository import Gst, GObject  # noqa:F401,F402
 
 
-
-def run_youtube(input_url):
-
+def run_youtube(endpoint, accesskey, secretkey, bucket, partsize, key, input_url):
     youtube_dl_str = "youtube-dl --format " +  "\"best[ext=mp4][protocol=https]\"" + " --get-url " + input_url
     print("YDS: " + youtube_dl_str)
-    location = subprocess.check_output(youtube_dl_str, shell=True).decode()
-    print("LOCATION:" + location)
-    #pipeline_str = "souphttpsrc is-live=true location=\"{0}\" ! filesink location=video_files/video1.mp4 -e".format(location)
-    #pipeline_str = "souphttpsrc is-live=true location=\"{0}\" ! cephrgwsink endpoint_url=http://ceph-route-rook-ceph.apps.jweng-ocp.shiftstack.com access_key=QjdOMFdZNEE3NTc3MUwwMDNZT1M= secret_key=cmlBWFZLa2tIaWhSaTN5Sk5FNGpxaGRlc2ZGWWtwMWZqWFpqR0FrRA== bucket=my-bucket location=\"{0}\" parts=6".format(location)
-    a = "http://ceph-route-rook-ceph.apps.jweng-ocp.shiftstack.com"
-    b ="VUJHR0ROUkhDUUxYREYwNzQxTzg="
-    c ="T2tOdVppaGZhTmdOY1BnaXJscjVHVHo5eFhYSGxVa1pIREdVdmhNTg=="
-    pipeline_str = "souphttpsrc is-live=true location=\"{0}\" ! cephrgwsink endpointurl={1} accesskey={2} secretkey={3} bucket=jwengbucket".format(location,a,b,c)
+    loc = subprocess.check_output(youtube_dl_str, shell=True).decode()
+    print("LOCATION: " + loc)
+    print("++++++++++++++++++++++++++++++++++++++++++++++++++++")
+    #e,a,s,b,p,k
+    e = endpoint
+    a = accesskey
+    s = secretkey
+    b = bucket
+    p = partsize
+    k = key
+    
+    pipeline_str = "souphttpsrc is-live=true location={0} ! cephrgwsink endpointurl={1} accesskey={2} secretkey={3} bucket={4} partsize={5} key={6}.format(loc,e,a,s,b,p,k)"
     print(pipeline_str)
     return pipeline_str
 
 
 # Initializes Gstreamer, it's variables, paths
 Gst.init(sys.argv)
+count = 0
 
-input_url = input("Enter the URL of the youtube video: ")
-command = run_youtube(input_url)
+#endpoint, access, secret, bucket, partsize, key
+endpoint = input("Enter your endpoint url (with http): ")
+accesskey = input("Enter your accesskey: ")
+secretkey = input("Enter your secretkey: ")
+bucket = input("Enter your bucket name or type 'default' for default (mybucket): ")
+partsize = input("Enter the partsize or type 'default' for default (5mb = 5*1024*1024): ")
+key = input("Enter a nickname for the file you want to upload: ")
+
+while(True):
+    
+    input_url = input("Enter the URL of the youtube video or type 'done' to finish: ")
+    if(input_url == 'done'):
+        break
+    count += 0
+    command = run_youtube(input_url)
+
 
 def on_message(bus: Gst.Bus, message: Gst.Message, loop: GObject.MainLoop):
     mtype = message.type
@@ -55,7 +72,7 @@ def on_message(bus: Gst.Bus, message: Gst.Message, loop: GObject.MainLoop):
 
 
 pipeline = Gst.parse_launch(command)
-
+ 
 bus = pipeline.get_bus()
 
 # allow bus to emit messages to main thread
@@ -78,5 +95,3 @@ except Exception:
 
 # Stop Pipeline
 pipeline.set_state(Gst.State.NULL)
-
-                                          

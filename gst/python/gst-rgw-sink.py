@@ -50,13 +50,7 @@ def upload_part(self,data):
 
 def handle_part(self,data):
     print(">> Uploading part: " + str(self.count + 1))
-
-    #thr = threading.Thread(target=upload_part_r, args=(i, bufferlist[i], thr_args, self) )
-    #threads.append(thr)
-    #thr.start()
     upload_part(self,data)
-
-
 
 
 #sink element
@@ -77,7 +71,7 @@ class CephRGW(GstBase.BaseSink):
                         Gst.PadDirection.SINK,
                         Gst.PadPresence.ALWAYS,
                         Gst.Caps.from_string(f"video/x-raw,format={FORMATS}"))
-    #object properties
+
     #object properties
     __gproperties__ = {
         "endpointurl": (GObject.TYPE_STRING,
@@ -117,7 +111,6 @@ class CephRGW(GstBase.BaseSink):
                      GObject.ParamFlags.READWRITE
                      ),
        
-        
         "key": (GObject.TYPE_STRING,
                      "key",
                      "key for ceph rgw",
@@ -203,8 +196,9 @@ class CephRGW(GstBase.BaseSink):
 
         #Get all buckets
         buckets = [bucket['Name'] for bucket in response['Buckets']]
-            # Print out the bucket list
+        # Print out the bucket list
         print("Updated bucket List: %s" % buckets)
+        
         self.mpu = self.s3.create_multipart_upload(Bucket=self.bucket, Key=self.key)
         self.thr_args ={'PartInfo': { 'Parts': []},
                     'UploadId': self.mpu['UploadId'],
@@ -215,9 +209,8 @@ class CephRGW(GstBase.BaseSink):
         return True
     
     def do_render(self, buffer):
-        #Gst.info("timestamp(buffer):%s" % (Gst.TIME_ARGS(buffer.pts)))
-
         try:
+            #mapping buffer input 
             (result, mapinfo) = buffer.map(Gst.MapFlags.READ)
             assert result
 
@@ -226,13 +219,10 @@ class CephRGW(GstBase.BaseSink):
 
                 self.temp.write(data.read())
                 print("SIZE: " + str(self.temp.getbuffer().nbytes))
+                
                 if self.temp.getbuffer().nbytes > self.part_size:
-                    #self.buffer.append(self.temp)
-                    #bucketname and keyname and part number
-                    #hamdle_mp_file(self,self.count)
-                    handle_part(self,self.temp)
-                    self.count= self.count + 1
-                    print("Count num: " + str(self.count))
+                    handle_part(self, self.temp)
+                    self.count = self.count + 1
                     self.temp = io.BytesIO()
             finally:
                 buffer.unmap(mapinfo)
@@ -243,11 +233,6 @@ class CephRGW(GstBase.BaseSink):
       
       
     def do_stop(self):
-        print("DOOO STOPPPPPPP")
-        #if sys.getsizeof(self.temp) > 6242880:
-            #self.buffer.append(self.temp)
-        #else:
-            #self.buffer[self.count-1].write(self.temp.read())
         handle_part(self,self.temp)
         for i in range(len(self.buffer)):
             print("Size buff: " + str(sys.getsizeof(self.buffer[i])))
@@ -260,8 +245,7 @@ class CephRGW(GstBase.BaseSink):
 
         print("+ Finishing up multi-part uploads")
         self.s3.complete_multipart_upload( Bucket=self.bucket, Key=self.key, UploadId=self.mpu['UploadId'], MultipartUpload=self.thr_args['PartInfo'] )
-
-        print("XXXXXXXX")
+        print("+++++++++++++ Uploads complete! +++++++++++++")
         #self.s3.download_file(self.bucket,self.key,"out.mp4")
 
 

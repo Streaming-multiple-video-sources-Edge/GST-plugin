@@ -46,7 +46,7 @@ while(True):
     if(input_url == 'done'):
         break
     count += 0
-    command = run_youtube(input_url)
+    command = run_youtube(endpoint, accesskey, secretkey, bucket, partsize, key, input_url)
 
 
 def on_message(bus: Gst.Bus, message: Gst.Message, loop: GObject.MainLoop):

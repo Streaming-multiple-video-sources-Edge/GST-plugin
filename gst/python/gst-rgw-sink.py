@@ -19,17 +19,18 @@ GObject.threads_init()
 Gst.init(None)
 
 #default variables
-DEFAULT_ENDPOINT = "http://ceph-route-rook-ceph.apps.jweng-ocp.shiftstack.com"
-DEFAULT_ACCESS = "VUJHR0ROUkhDUUxYREYwNzQxTzg="
-DEFAULT_SECRET = "T2tOdVppaGZhTmdOY1BnaXJscjVHVHo5eFhYSGxVa1pIREdVdmhNTg=="
+#DEFAULT_ENDPOINT = "http://ceph-route-rook-ceph.apps.jweng-ocp.shiftstack.com"
+#DEFAULT_ACCESS = "VUJHR0ROUkhDUUxYREYwNzQxTzg="
+#DEFAULT_SECRET = "T2tOdVppaGZhTmdOY1BnaXJscjVHVHo5eFhYSGxVa1pIREdVdmhNTg=="
 DEFAULT_BUCKET = "my-bucket"
 DEFAULT_COUNT = 0
 DEFAULT_KEY = 'mykey'
 DEFAULT_PART_SIZE = 5 * 1024 * 1024 #5mb
 
 # DEFAULT_BUCKET = "myBucket"
-# DEFAULT_ENDPOINT = "http://ceph-route-rook-ceph.apps.neeha-ocp.shiftstack.com"
-# DEFAULT_ACCESS = "SFQ4MzE0SkxKNFRFOUNMTDZPV04="# DEFAULT_SECRET = "MFV4VUFkb3p3RW5jWXVNZjk2S2lKOXdWTGJMaEdkUVNMQngzb2hMUA=="
+DEFAULT_ENDPOINT = "http://ceph-route-rook-ceph.apps.neeha-ocp.shiftstack.com"
+DEFAULT_ACCESS = "Qk9QNFM0SDZEWElPT1FMRzFRT0Q="
+DEFAULT_SECRET = "MmRyU0ZhRnZYR0dRTDFWQXNjQmtvT3ZNOVFQaUdxcmlzTjJJZUVtUA=="
 # DEFAULT_PARTS = 6
 
 FORMATS = "{RGBx,BGRx,xRGB,xBGR,RGBA,BGRA,ARGB,ABGR,RGB,BGR}"

@@ -26,6 +26,7 @@ DEFAULT_BUCKET = "my-bucket"
 DEFAULT_COUNT = 0
 DEFAULT_KEY = 'mykey'
 DEFAULT_PART_SIZE = 5 * 1024 * 1024 #5mb
+DEFAULT_LIMIT_SIZE= 107374182400 # 100gb
 
 # DEFAULT_BUCKET = "myBucket"
 DEFAULT_ENDPOINT = "http://ceph-route-rook-ceph.apps.neeha-ocp.shiftstack.com"
@@ -119,6 +120,15 @@ class CephRGW(GstBase.BaseSink):
                      GObject.ParamFlags.READWRITE
                      ),
         
+        "limitsize": (GObject.TYPE_INT64,
+                     "Max limit size",
+                     "Size of maximum  upload to ceph",
+                     DEFAULT_PART_SIZE, #min
+                     DEFAULT_LIMIT_SIZE, #max
+                     DEFAULT_LIMIT_SIZE,  # default
+                     GObject.ParamFlags.READWRITE
+                     ),
+        
       }
       
       
@@ -132,8 +142,10 @@ class CephRGW(GstBase.BaseSink):
         self.bucket = DEFAULT_BUCKET
         self.part_size = DEFAULT_PART_SIZE
         self.key = DEFAULT_KEY
+        self.limitsize = DEFAULT_LIMIT_SIZE
         self.count = 0
         self.buffer = []
+        self.currsize = 0
 
         self.temp = io.BytesIO()
         self.thr_args = {}
@@ -156,6 +168,8 @@ class CephRGW(GstBase.BaseSink):
             return self.part_size
         elif prop.name == 'key':
             return self.key
+        elif prop.name == 'limitsize':
+            return self.limitsize
         else:
             raise AttributeError('unknown property %s' % prop.name)
             
@@ -172,6 +186,8 @@ class CephRGW(GstBase.BaseSink):
             self.part_size = value
         elif prop.name == 'key':
             self.key = value
+        elif prop.name == 'limitsize':
+            self.limitsize = value
         else:
             raise AttributeError('unknown property %s' % prop.name)
 
@@ -222,6 +238,10 @@ class CephRGW(GstBase.BaseSink):
                 print("SIZE: " + str(self.temp.getbuffer().nbytes))
                 
                 if self.temp.getbuffer().nbytes > self.part_size:
+                    self.currsize = self.currsize + self.temp.getbuffer().nbytes
+                    print(self.currsize)
+                    if(self.currsize > self.limitsize):
+                        return Gst.FlowReturn.EOS
                     handle_part(self, self.temp)
                     self.count = self.count + 1
                     self.temp = io.BytesIO()

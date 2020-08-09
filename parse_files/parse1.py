@@ -9,7 +9,7 @@ gi.require_version('Gst', '1.0')
 from gi.repository import Gst, GObject  # noqa:F401,F402
 
 
-def run_youtube(endpoint, accesskey, secretkey, bucket, partsize, key, input_url):
+def run_youtube(endpoint, accesskey, secretkey, bucket, partsize, key, input_url,limit):
     youtube_dl_str = "youtube-dl --format " +  "\"best[ext=mp4][protocol=https]\"" + " --get-url " + input_url
     print("YDS: " + youtube_dl_str)
     loc = subprocess.check_output(youtube_dl_str, shell=True).decode()
@@ -22,8 +22,9 @@ def run_youtube(endpoint, accesskey, secretkey, bucket, partsize, key, input_url
     b = bucket
     p = partsize
     k = key
+    o = limit
     
-    pipeline_str = "souphttpsrc is-live=true location={0} ! cephrgwsink endpointurl={1} accesskey={2} secretkey={3} bucket={4} partsize={5} key={6}.format(loc,e,a,s,b,p,k)"
+    pipeline_str = "souphttpsrc is-live=true location={0} ! cephrgwsink endpointurl={1} accesskey={2} secretkey={3} bucket={4} partsize={5} key={6} limitsize={7}".format(loc,e,a,s,b,p,k,o)
     print(pipeline_str)
     return pipeline_str
 
@@ -39,6 +40,7 @@ secretkey = input("Enter your secretkey: ")
 bucket = input("Enter your bucket name or type 'default' for default (mybucket): ")
 partsize = input("Enter the partsize or type 'default' for default (5mb = 5*1024*1024): ")
 key = input("Enter a nickname for the file you want to upload: ")
+limit = input("Enter the maxium upload limit: ")
 
 while(True):
     
@@ -46,7 +48,7 @@ while(True):
     if(input_url == 'done'):
         break
     count += 0
-    command = run_youtube(endpoint, accesskey, secretkey, bucket, partsize, key, input_url)
+    command = run_youtube(endpoint, accesskey, secretkey, bucket, partsize, key, input_url,limit)
 
 
 def on_message(bus: Gst.Bus, message: Gst.Message, loop: GObject.MainLoop):

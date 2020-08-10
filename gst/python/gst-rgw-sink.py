@@ -235,7 +235,7 @@ class CephRGW(GstBase.BaseSink):
                 data = io.BytesIO(mapinfo.data)
 
                 self.temp.write(data.read())
-                print("SIZE: " + str(self.temp.getbuffer().nbytes))
+                #print("SIZE: " + str(self.temp.getbuffer().nbytes))
                 
                 if self.temp.getbuffer().nbytes > self.part_size:
                     self.currsize = self.currsize + self.temp.getbuffer().nbytes

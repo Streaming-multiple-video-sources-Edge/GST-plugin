@@ -104,3 +104,4 @@ while(True):
 
     count += 0
     command = run_youtube(endpoint, accesskey, secretkey, bucket, partsize, key, input_url,limit)
+    call_pipeline(command)

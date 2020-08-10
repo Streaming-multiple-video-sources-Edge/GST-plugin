@@ -23,32 +23,10 @@ def run_youtube(endpoint, accesskey, secretkey, bucket, partsize, key, input_url
     p = partsize
     k = key
     o = limit
-    
+
     pipeline_str = "souphttpsrc is-live=true location={0} ! cephrgwsink endpointurl={1} accesskey={2} secretkey={3} bucket={4} partsize={5} key={6} limitsize={7}".format(loc,e,a,s,b,p,k,o)
     print(pipeline_str)
     return pipeline_str
-
-
-# Initializes Gstreamer, it's variables, paths
-Gst.init(sys.argv)
-count = 0
-
-#endpoint, access, secret, bucket, partsize, key
-endpoint = input("Enter your endpoint url (with http): ")
-accesskey = input("Enter your accesskey: ")
-secretkey = input("Enter your secretkey: ")
-bucket = input("Enter your bucket name or type 'default' for default (mybucket): ")
-partsize = input("Enter the partsize or type 'default' for default (5mb = 5*1024*1024): ")
-key = input("Enter a nickname for the file you want to upload: ")
-limit = input("Enter the maxium upload limit: ")
-
-while(True):
-    
-    input_url = input("Enter the URL of the youtube video or type 'done' to finish: ")
-    if(input_url == 'done'):
-        break
-    count += 0
-    command = run_youtube(endpoint, accesskey, secretkey, bucket, partsize, key, input_url,limit)
 
 
 def on_message(bus: Gst.Bus, message: Gst.Message, loop: GObject.MainLoop):
@@ -72,28 +50,57 @@ def on_message(bus: Gst.Bus, message: Gst.Message, loop: GObject.MainLoop):
 
     return True
 
+def call_pipeline(command):
+    # Initializes Gstreamer, it's variables, paths
+    Gst.init(sys.argv)
+    #count = 0
 
-pipeline = Gst.parse_launch(command)
- 
-bus = pipeline.get_bus()
+    pipeline = Gst.parse_launch(command)
 
-# allow bus to emit messages to main thread
-bus.add_signal_watch()
+    bus = pipeline.get_bus()
 
-# Start pipeline
-pipeline.set_state(Gst.State.PLAYING)
+    # allow bus to emit messages to main thread
+    bus.add_signal_watch()
 
-# Init GObject loop to handle Gstreamer Bus Events
-loop = GObject.MainLoop()
+    # Start pipeline
+    pipeline.set_state(Gst.State.PLAYING)
 
-# Add handler to specific signal
-bus.connect("message", on_message, loop)
+    # Init GObject loop to handle Gstreamer Bus Events
+    loop = GObject.MainLoop()
 
-try:
-    loop.run()
-except Exception:
-    traceback.print_exc()
-    loop.quit()
+    # Add handler to specific signal
+    bus.connect("message", on_message, loop)
 
-# Stop Pipeline
-pipeline.set_state(Gst.State.NULL)
+    try:
+        loop.run()
+    except Exception:
+        traceback.print_exc()
+        loop.quit()
+
+    # Stop Pipeline
+    pipeline.set_state(Gst.State.NULL)
+
+
+# Initializes Gstreamer, it's variables, paths
+#Gst.init(sys.argv)
+count = 0
+
+#endpoint, access, secret, bucket, partsize, key
+endpoint = input("Enter your endpoint url (with http): ")
+accesskey = input("Enter your accesskey: ")
+secretkey = input("Enter your secretkey: ")
+#bucket = input("Enter your bucket name or type 'default' for default (mybucket): ")
+partsize = input("Enter the partsize or type 'default' for default (5mb = 5*1024*1024): ")
+#key = input("Enter a nickname for the file you want to upload: ")
+limit = input("Enter the maxium upload limit: ")
+
+while(True):
+
+    input_url = input("Enter the URL of the youtube video or type 'done' to finish: ")
+    if(input_url == 'done'):
+        break
+    bucket = input("Enter your bucket name or type 'default' for default (mybucket): ")
+    key = input("Enter a nickname for the file you want to upload: ")
+
+    count += 0
+    command = run_youtube(endpoint, accesskey, secretkey, bucket, partsize, key, input_url,limit)

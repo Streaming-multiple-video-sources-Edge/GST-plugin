@@ -53,7 +53,6 @@ def on_message(bus: Gst.Bus, message: Gst.Message, loop: GObject.MainLoop):
 def call_pipeline(command):
     # Initializes Gstreamer, it's variables, paths
     Gst.init(sys.argv)
-    #count = 0
 
     pipeline = Gst.parse_launch(command)
 
@@ -86,11 +85,13 @@ def call_pipeline(command):
 count = 0
 
 #endpoint, access, secret, bucket, partsize, key
-endpoint = input("Enter your endpoint url (with http): ")
-accesskey = input("Enter your accesskey: ")
-secretkey = input("Enter your secretkey: ")
+endpoint = input("Enter your endpoint url [with http]: ")
+accesskey = input("Enter your accesskey [not decoded]: ")
+secretkey = input("Enter your secretkey [not decoded]: ")
 #bucket = input("Enter your bucket name or type 'default' for default (mybucket): ")
-partsize = input("Enter the partsize or type 'default' for default (5mb = 5*1024*1024): ")
+partsize = input("Enter the partsize or type 'default' [default: 5mb = 5*1024*1024]: ")
+if partsize == 'default':
+    partsize = 5*1024*1024
 #key = input("Enter a nickname for the file you want to upload: ")
 limit = input("Enter the maxium upload limit: ")
 
@@ -99,7 +100,11 @@ while(True):
     input_url = input("Enter the URL of the youtube video or type 'done' to finish: ")
     if(input_url == 'done'):
         break
-    bucket = input("Enter your bucket name or type 'default' for default (mybucket): ")
+    
+    bucket = input("Enter your bucket name or type 'default' [default: MYBUCKET]: ")
+    if(bucket == 'default'):
+        bucket = 'MYBUCKET'
+        
     key = input("Enter a nickname for the file you want to upload: ")
 
     count += 0
